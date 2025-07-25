@@ -3,6 +3,19 @@ import pickle
 import os
 from tqdm import tqdm
 
+
+"""
+FUSION DONNEES SIRENE
+---------------------------
+initalement, les noms d'entreprise et les effectif des établissements ne sont pas stocké dans le meme fichier.
+Ce scrypte a pour but d'asscocier chaque ligne du fichier de sortie de 'nettoyage' à un nom d'entreprise.
+
+Personalisation :
+- Modifier input_file/output_file
+
+"""
+
+
 # 1. Charger le fichier des unités légales dans un dictionnaire (avec cache)
 unite_legale_file = "StockUniteLegale_utf8.csv"
 cache_file = "unite_legale_dict.pkl"

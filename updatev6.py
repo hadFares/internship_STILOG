@@ -5,7 +5,49 @@ import unicodedata
 from tqdm import tqdm
 from fuzzywuzzy import fuzz
 
+
+
+"""
+MISE À JOUR ORION AVEC SIRENE
+------------------------------
+Ce script permet de faire correspondre et enrichir une base CRM avec les données SIRENE :
+- Pour chaque enregistrement client, il complète les champs SIRET, SIREN et effectif (potentiellement d'autres infos au choix).
+- Il réalise une normalisation des noms et villes, un score de similarité flou pour l'appariement.
+
+Personnalisation :
+- Modifier `crm_test_path` pour le chemin du fichier ORION source.
+- Modifier `sirene_path` pour le chemin du fichier SIRENE normalisé.
+- Modifier la fonction remplir_ligne_orion selon les besoins.
+
+À noter :
+- Si les SIRET sont présents dans ORION, il est possible de modifier `match_single_company`
+  afin d'obtenir un appariement systématique lorsque la SIRET est trouvée.
+- Les seuils de matching (score à partir duquel on considère le match comme sûr) sont modifiables,
+  mais une valeur de 130 garantit de ne pas commettre d'erreurs sur l'entreprise
+  (une erreur sur l'établissement reste possible)
+
+"""
+
+
+
 # --- Utilitaires ---
+
+def load_csv(path: str) -> pd.DataFrame:
+    """
+    Tente de charger un CSV avec plusieurs séparateurs possibles.
+    Lance une erreur si le fichier est vide ou mal formaté.
+    """
+    for sep in [',', ';', '\t']:
+        try:
+            df = pd.read_csv(path, sep=sep, dtype=str)
+            if df.empty or df.columns.size == 0:
+                raise EmptyDataError
+            print(f"Chargé '{path}' avec séparateur '{sep}'.")
+            return df
+        except EmptyDataError:
+            continue
+    raise ValueError(f"Impossible de lire des colonnes dans le fichier : {path}")
+
 
 def normalize_name(name: str) -> str:
     """
@@ -26,7 +68,7 @@ def normalize_name(name: str) -> str:
     # On enlève tout ce qui est entre parenthèses
     s = re.sub(r'\([^)]*\)', ' ', s)
 
-    # On retire "cedex" en toute casse
+    # On retire les "cedex" des villes  
     s = re.sub(r'\bcedex\b', ' ', s)
 
     # Suppression de la ponctuation (sauf tiret) et des formes juridiques
@@ -152,11 +194,14 @@ def remplir_ligne_orion(
     Met à jour les champs SIRET, SIREN et effectif d'un client,
     en tenant compte du siège social pour l'effectif.
     """
+    # MODIFIER LES INFOS A RENSEIGNER
     crm_updated[client_index]['SIRET'] = sirene_row['siret']
     crm_updated[client_index]['SIREN'] = sirene_row['siren']
     crm_updated[client_index]['nom_match_sirene'] = matched_name
     crm_updated[client_index]['score_match'] = match_score
-    # Remplissage de l'effectif en passant le sous-ensemble des sièges sociaux
+
+    # Remplissage de l'effectif en passant par la fonction fill_effectif
+    # Cette fonction n'est pas nécéssaire pour renseigner des infos comme le NAF
     crm_updated[client_index]['effectif'] = fill_effectif(sirene_row, sirene_head_subset)
 
 
@@ -164,7 +209,7 @@ def match_single_company(
     client_name: str,
     client_city: str,
     sirene_subset: pd.DataFrame,
-    threshold: float = 100.0
+    threshold: float = 129.0
 ) -> tuple[pd.Series, float] | None:  # Type de retour modifié
     """
     Essaie de trouver une correspondance dans le DataFrame `sirene_subset` pour `client_name`,
@@ -256,24 +301,6 @@ def update_CRM(
 
     return crm_updated
 
-
-# --- Chargement robuste et exécution sur base test ---
-
-def load_csv(path: str) -> pd.DataFrame:
-    """
-    Tente de charger un CSV avec plusieurs séparateurs possibles.
-    Lance une erreur si le fichier est vide ou mal formaté.
-    """
-    for sep in [',', ';', '\t']:
-        try:
-            df = pd.read_csv(path, sep=sep, dtype=str)
-            if df.empty or df.columns.size == 0:
-                raise EmptyDataError
-            print(f"Chargé '{path}' avec séparateur '{sep}'.")
-            return df
-        except EmptyDataError:
-            continue
-    raise ValueError(f"Impossible de lire des colonnes dans le fichier : {path}")
 
 if __name__ == "__main__":
     crm_test_path = "mini_orion.csv"

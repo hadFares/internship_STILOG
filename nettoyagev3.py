@@ -1,7 +1,22 @@
 import pandas as pd
 from tqdm import tqdm
 
+"""
+NETTOYAGE DONNÉES SIRENE
+---------------------------
+Filtre les établissements selon :
+- Statut employeur (O) (enleve toutes les entreprises non employeuses de SIRENE)
+- Effectifs >= 3 salariés
+
+Personnalisation :
+1. Modifier colonnes_utiles
+2. Modifier effectifs_valides
+3. Modifier input_file/output_file
+"""
+
+
 # Colonnes nécessaires
+# A MODIFIER SELON BESOINS
 colonnes_utiles = [
     "siret",
     "siren",
@@ -14,7 +29,7 @@ colonnes_utiles = [
     "etablissementSiege",
 ]
 
-# Types de données pour optimisation mémoire
+# Types de données
 dtypes = {
     "siret": "string",
     "siren": "string",
@@ -28,11 +43,13 @@ dtypes = {
 }
 
 # Paramètres de traitement
+# NOM DU FICHIER D'ENTREE A MODIFIER SI BESOIN
 chunksize = 100_000
 input_file = "StockEtablissement_utf8.csv"
 output_file = "Donnees_Filtrees_Completes.csv"
 
 # Liste des codes d'effectifs valides (>= 3 salariés)
+# But de ce filtrage ; garder seulement les entreprises de 3 salariés et +
 effectifs_valides = ['02', '03', '11', '12', '21', '22', '31', '32', '41', '42', '51', '52', '53']
 
 # Compteurs pour les statistiques globales
@@ -70,6 +87,8 @@ with tqdm(total=total_rows, desc="Traitement des chunks") as pbar:
         ]
         
         # 3. Supprimer les actifs (A) sans effectif connu
+        # --> A supprimer dans le cas ou l'on veut renseigner autre chose que l'effectif
+        # MODIFIER
         a_supprimer = (
             (chunk['etatAdministratifEtablissement'] == 'A') & 
             (chunk['trancheEffectifsEtablissement'].isna() | (chunk['trancheEffectifsEtablissement'] == 'NN'))

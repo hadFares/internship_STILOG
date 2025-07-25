@@ -24,7 +24,7 @@ dtypes = {
 }
 
 # Pré-compilation des regex pour la performance
-LEGAL_FORMS = re.compile(r"\b(sarl|sa|sas|sasu|eurl|ei|sci|eurl|sas|sarl|sas|eurl|sarl|snc|sc|sas|scop|sarl)\b", re.IGNORECASE)
+LEGAL_FORMS = re.compile(r"\b(sarl|sa|sas|sasu|eurl|ei|sci|snc|sc|scop)\b", re.IGNORECASE)
 MULTISPACE = re.compile(r"\s+")
 PUNCTUATION = re.compile(r"[^\w\s-]")
 
@@ -53,7 +53,7 @@ def normalize_company_name(name: str) -> str:
     
     return normalized
 
-# --- ADD THIS SECTION TO DELETE THE OUTPUT FILE IF IT EXISTS ---
+# --- suppréssion du fichier de sortie s'il existe déjà ---
 if os.path.exists(output_file):
     print(f"Suppression du fichier existant: {output_file}")
     os.remove(output_file)
@@ -81,12 +81,9 @@ processed_lines = 0  # Compteur des lignes traitées
 
 with tqdm(total=total_lines, desc="Normalisation des noms") as pbar:
     for chunk in reader:
-        # NOTE : La boucle de conversion explicite a été supprimée.
-        # La lecture avec dtype=dtypes est suffisante et plus robuste.
         
         # Supprimer les lignes avec "[ND]"
         original_count = len(chunk)
-        # Assurez-vous que la colonne est bien en string pour la comparaison
         chunk = chunk[chunk['nom_entreprise'].astype(str) != '[ND]']
         removed_count = original_count - len(chunk)
         total_removed += removed_count
@@ -122,15 +119,3 @@ print(f"Lignes supprimées (valeurs [ND]): {total_removed:,}")
 print(f"Lignes conservées: {processed_lines - total_removed:,}")
 print(f"Taille du fichier: {os.path.getsize(output_file)/1024**2:.2f} MB")
 
-# Après traitement
-df = pd.read_csv(output_file, dtype={'siren': 'string'}, nrows=1000)
-
-# Vérifier la longueur des SIREN
-siren_lengths = df['siren'].str.len()
-print(f"SIREN avec longueur incorrecte: {(siren_lengths != 9).sum()}")
-print("Exemples:")
-print(df[df['siren'].str.len() != 9][['siren', 'nom_entreprise']].head())
-
-# Vérifier les zéros initiaux
-print("\nSIREN commençant par zéro:")
-print(df[df['siren'].str.startswith('0')][['siren', 'nom_entreprise']].head())
