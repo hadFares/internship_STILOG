@@ -62,7 +62,7 @@ Colonnes créées en plus dans le fichier de sortie :
 
 
 Précision colonne effectif :
-    la colonne effectif est remplie avec le code d'effectif de l'INSEE. Il peut etre conerti dans excel en tranches plus larges avec un RECHERCHEV.
+    la colonne effectif est remplie avec le code d'effectif de l'INSEE. Il peut etre conerti dans excel en tranches plus larges avec un RECHERCHEV (codes présent dans le dossier).
 
 
 Performances attendues :
