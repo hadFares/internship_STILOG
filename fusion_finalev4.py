@@ -5,6 +5,8 @@ import os
 from tqdm import tqdm
 import numpy as np
 
+# Utilitaires :
+
 def load_csv(path: str) -> pd.DataFrame:
     """Charge un CSV avec détection automatique du séparateur et de l'encodage"""
     encodings = ['latin1', 'utf-8', 'iso-8859-15', 'cp1252']
@@ -20,6 +22,7 @@ def load_csv(path: str) -> pd.DataFrame:
             except (UnicodeDecodeError, pd.errors.ParserError):
                 continue
     raise ValueError(f"Impossible de charger le fichier: {path}")
+
 
 def load_orion(path: str) -> pd.DataFrame:
     """
@@ -45,6 +48,7 @@ def load_orion(path: str) -> pd.DataFrame:
     except (EmptyDataError, ParserError, UnicodeDecodeError) as e:
         raise ValueError(f"Erreur lors du chargement du fichier '{path}' : {e}")
 
+
 def normalize_uid(uid_val):
     """Normalise l'UID pour une comparaison robuste"""
     if pd.isna(uid_val) or uid_val in ["", "nan", "None"]:
@@ -54,6 +58,7 @@ def normalize_uid(uid_val):
     if '.' in s:
         s = s.rstrip('0').rstrip('.')
     return s
+
 
 def fusion(orion: pd.DataFrame, crm_update: pd.DataFrame) -> pd.DataFrame:
     """
@@ -141,6 +146,7 @@ def fusion(orion: pd.DataFrame, crm_update: pd.DataFrame) -> pd.DataFrame:
         print(updated_rows[['Identifiant interne (UID)', 'SIRET', 'effectif_auto', 'score_match']])
     
     return output
+
 
 def main():
     output_file = 'orion_final.csv'

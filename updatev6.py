@@ -19,6 +19,7 @@ Personnalisation :
 - Modifier `sirene_path` pour le chemin du fichier SIRENE normalisé.
 - Modifier la fonction remplir_ligne_orion selon les besoins.
 
+
 À noter :
 - Si les SIRET sont présents dans ORION, il est possible de modifier `match_single_company`
   afin d'obtenir un appariement systématique lorsque la SIRET est trouvée.

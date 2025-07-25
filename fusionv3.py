@@ -5,13 +5,14 @@ from tqdm import tqdm
 
 
 """
-FUSION DONNEES SIRENE
----------------------------
-initalement, les noms d'entreprise et les effectif des établissements ne sont pas stocké dans le meme fichier.
-Ce scrypte a pour but d'asscocier chaque ligne du fichier de sortie de 'nettoyage' à un nom d'entreprise.
 
-Personalisation :
-- Modifier input_file/output_file
+FUSION DONNÉES SIRENE
+---------------------------
+Initialement, les noms d'entreprise et les effectifs des établissements ne sont pas stockés dans le même fichier.  
+Ce script a pour but d'associer chaque ligne du fichier de sortie de 'nettoyage' à un nom d'entreprise.
+
+Personnalisation :  
+- Modifier `input_file` / `output_file`
 
 """
 

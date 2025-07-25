@@ -7,11 +7,17 @@ NETTOYAGE DONNÉES SIRENE
 Filtre les établissements selon :
 - Statut employeur (O) (enleve toutes les entreprises non employeuses de SIRENE)
 - Effectifs >= 3 salariés
+- Entreprises ouverte dont l'effectif n'est pas renseigné dans SIRENE
 
 Personnalisation :
 1. Modifier colonnes_utiles
 2. Modifier effectifs_valides
 3. Modifier input_file/output_file
+4. Modifier les filtres
+
+A noter :
+Si l'objectif est de renseigner autre chose que l'effectif dans ORION,
+penser à enlever le filtre qui enleve une entreprise de la SIRENE si l'effectif n'est pas renseigné
 """
 
 
